@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: moosa-portfolio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: moosa_portfolio
+    ports:
+      - "5432:5432"
+    volumes:
+      - moosa_portfolio_pgdata:/var/lib/postgresql/data
+
+volumes:
+  moosa_portfolio_pgdata:

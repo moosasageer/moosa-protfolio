@@ -1,0 +1,196 @@
+// ============================================================================
+// Moosa Sageer — Portfolio + Admin CMS — Database Schema
+//
+// Postgres everywhere — locally via Docker (see docker-compose.yml / README
+// §3), and in production on AWS RDS. Same provider in both places, so there's
+// no schema drift between dev and prod.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth — single (or multi) admin user. Passwords are always bcrypt hashes.
+// ---------------------------------------------------------------------------
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @default("Admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Profile — singleton row holding everything editable in /admin/profile,
+// the hero copy, the "Currently Building" terminal, and About stats.
+// ---------------------------------------------------------------------------
+model Profile {
+  id                 String   @id @default("profile") // singleton
+  name               String   @default("Moosa Sageer")
+  jobTitle           String   @default("Full-Stack Developer")
+  heroGreeting        String   @default("Hi, I'm Moosa.")
+  heroSubtitle       String   @default("Full-Stack Developer • AI/ML Enthusiast • Creative Developer")
+  heroStatement      String   @default("I build digital experiences, intelligent systems and things that people actually remember.")
+  aboutHeading       String   @default("More than just code.")
+  bio                String   @default("")
+  shortBio           String   @default("")
+  location           String   @default("")
+  avatarUrl          String?
+  resumeUrl          String?
+  email              String   @default("hello@example.com")
+  phone              String?
+  currentlyBuilding  String   @default("Intelligent systems\nAI + Computer Vision\nBetter digital experiences")
+  updatedAt          DateTime @updatedAt
+
+  stats       Stat[]
+  socialLinks SocialLink[]
+}
+
+model Stat {
+  id        String  @id @default(cuid())
+  value     String // e.g. "10+"
+  label     String // e.g. "Projects"
+  order     Int     @default(0)
+  profileId String  @default("profile")
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Social links — flexible, reorderable list shown as icon boxes under the
+// profile photo (and used for the Contact section links). Replaces the old
+// fixed github/linkedin/instagram/twitter/otherLink columns so any number of
+// platforms, in any order, with any icon, can be managed from /admin/profile.
+// ---------------------------------------------------------------------------
+model SocialLink {
+  id        String  @id @default(cuid())
+  label     String // e.g. "LinkedIn" — shown as a11y label / tooltip
+  url       String
+  icon      String  @default("link") // key into SOCIAL_ICONS map (src/lib/icons.tsx)
+  order     Int     @default(0)
+  profileId String  @default("profile")
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Skills
+// ---------------------------------------------------------------------------
+enum SkillCategory {
+  FRONTEND
+  BACKEND
+  PROGRAMMING
+  AI_ML
+  DATABASE
+  TOOLS
+}
+
+model Skill {
+  id        String        @id @default(cuid())
+  name      String
+  category  SkillCategory
+  icon      String        @default("code") // lucide icon name
+  order     Int           @default(0)
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Projects
+// ---------------------------------------------------------------------------
+model Project {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  shortDescription String
+  fullDescription  String
+  coverImageUrl    String?
+  technologies     String // comma-separated; kept simple & queryable in SQLite
+  githubUrl        String?
+  liveUrl          String?
+  category         String   @default("Web")
+  featured         Boolean  @default(false)
+  published        Boolean  @default(false)
+  order            Int      @default(0)
+  metaTitle        String?
+  metaDescription  String?
+  ogImageUrl       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  images ProjectImage[]
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String  @default("")
+  order     Int     @default(0)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// Experience / Journey timeline
+// ---------------------------------------------------------------------------
+model Experience {
+  id           String    @id @default(cuid())
+  position     String
+  organization String
+  description  String
+  startDate    DateTime
+  endDate      DateTime?
+  current      Boolean   @default(false)
+  technologies String // comma-separated
+  logoUrl      String?
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Contact messages
+// ---------------------------------------------------------------------------
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Media library
+// ---------------------------------------------------------------------------
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  filename  String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Site settings — singleton
+// ---------------------------------------------------------------------------
+model SiteSettings {
+  id              String  @id @default("settings")
+  siteTitle       String  @default("Moosa Sageer — Full-Stack Developer")
+  siteDescription String  @default("Full-stack developer & AI/ML enthusiast building intelligent, memorable digital experiences.")
+  faviconUrl      String?
+  accentColor     String  @default("#6E56CF")
+  footerText      String  @default("Designed & built by Moosa Sageer.")
+  contactEmail    String  @default("hello@example.com")
+  analyticsId     String?
+  maintenanceMode Boolean @default(false)
+  keywords        String? // comma-separated
+}
