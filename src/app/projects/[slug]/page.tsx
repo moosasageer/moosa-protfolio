@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpRight, Github } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import Nav from "@/components/site/Nav";
 import Footer from "@/components/site/Footer";
+import ProjectGallery from "@/components/site/ProjectGallery";
 import { splitTech } from "@/lib/utils";
 
 type Props = { params: { slug: string } };
@@ -73,7 +74,7 @@ export default async function ProjectPage({ params }: Props) {
           </div>
 
           {project.coverImageUrl && (
-            <div className="relative mt-12 aspect-video rounded-3xl overflow-hidden border border-white/8">
+            <div className="relative mt-12 aspect-video rounded-3xl overflow-hidden border border-white/8 animate-float-slow">
               <Image src={project.coverImageUrl} alt={project.title} fill sizes="(max-width: 1024px) 100vw, 896px" className="object-cover" priority />
             </div>
           )}
@@ -83,13 +84,7 @@ export default async function ProjectPage({ params }: Props) {
           </div>
 
           {project.images.length > 0 && (
-            <div className="mt-12 grid sm:grid-cols-2 gap-4">
-              {project.images.map((img) => (
-                <div key={img.id} className="relative aspect-video rounded-2xl overflow-hidden border border-white/8">
-                  <Image src={img.url} alt={img.alt || project.title} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
-                </div>
-              ))}
-            </div>
+            <ProjectGallery images={project.images} title={project.title} />
           )}
         </div>
       </main>

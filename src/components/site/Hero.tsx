@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
+import HoloCard from "./HoloCard";
 import TerminalChip from "./TerminalChip";
 import { getSocialIcon } from "@/lib/icons";
 
@@ -59,6 +59,11 @@ export default function Hero({
         animate={{ scale: [1, 1.2, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
+      <motion.div
+        className="absolute top-0 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-teal-400/10 blur-[140px]"
+        animate={{ opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 md:px-10 pt-28 pb-20">
         <motion.div variants={container} initial="hidden" animate="show" className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
@@ -99,22 +104,7 @@ export default function Hero({
           </div>
 
           <motion.div variants={item} className="justify-self-center md:justify-self-end">
-            <div className="relative">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                className="absolute -inset-3 rounded-full border border-dashed border-white/10"
-              />
-              <div className="h-40 w-40 md:h-56 md:w-56 rounded-full overflow-hidden ring-1 ring-white/10 glow bg-ink-700 relative">
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt={name} fill sizes="(max-width: 768px) 160px, 224px" className="object-cover" priority />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center font-display text-4xl text-mist-400">
-                    {name.charAt(0)}
-                  </div>
-                )}
-              </div>
-            </div>
+            <HoloCard avatarUrl={avatarUrl} name={name} />
 
             {socialLinks.length > 0 && (
               <div className="mt-5 flex justify-center gap-2.5">

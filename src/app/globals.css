@@ -100,3 +100,59 @@ select:focus-visible,
   background: #31353d;
   border-radius: 8px;
 }
+.holo-border {
+  background: conic-gradient(
+    from 0deg,
+    #ff5f6d,
+    #ffc371,
+    #47e0b3,
+    #4f9eff,
+    #b96bff,
+    #ff5f6d
+  );
+  filter: blur(7px);
+  opacity: 0.65;
+  animation: holo-spin 6s linear infinite;
+}
+
+@keyframes holo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.holo-sheen {
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.5) 40%,
+    rgba(255, 0, 150, 0.28) 48%,
+    rgba(0, 255, 255, 0.28) 54%,
+    transparent 70%
+  );
+  background-size: 220% 220%;
+  animation: holo-sheen-move 5s ease-in-out infinite;
+}
+
+@keyframes holo-sheen-move {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
